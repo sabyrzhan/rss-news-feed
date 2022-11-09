@@ -3,6 +3,7 @@ package kz.sabyrzhan.rssnewsfeed;
 import com.sun.net.httpserver.HttpServer;
 import org.apache.commons.io.IOUtils;
 import rawhttp.core.RawHttp;
+import rawhttp.core.RawHttpRequest;
 
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -27,7 +28,7 @@ public class Service {
                     try {
                         System.out.println("Waiting for client on port " +
                                 serverSocket.getLocalPort() + "...");
-                        String data = readRequestData(server.getInputStream());
+                        String data = null; //readRequestData(server.getInputStream());
                         System.out.println("Data is: " + data);
                         //var data = IOUtils.toString(new InputStreamReader(server.getInputStream()));
                         System.out.println("Data: " + data);
@@ -71,33 +72,13 @@ public class Service {
         serverSocket.close();
     }
 
-    private String readRequestData(InputStream socketInputStream) {
-        String result = "";
+    private RawHttpRequest readRequestData(InputStream socketInputStream) {
         try {
-            var br = new BufferedReader(new InputStreamReader(socketInputStream));
-            String data = null;
-            int line = 1;
-            int emptyCounter = 0;
-            while ((data = br.readLine()) != null) {
-                System.out.println((line++) + ") " + data);
-                result += data;
-                // this seems to be the key for me!
-                // somehow I never get out of this loop if I don't
-                // check for an empty line...
-                if (data.isEmpty()) {
-                    if (emptyCounter >= 1) {
-                        System.out.println("Emptycounter: " + emptyCounter + ". Finishing");
-                        break;
-                    } else {
-                        emptyCounter++;
-                        System.out.println("Empty: " + emptyCounter);
-                    }
-                }
-            }
+            return null;
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return result;
+        return null;
     }
 }
