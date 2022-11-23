@@ -5,11 +5,14 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import kz.sabyrzhan.rssnewsfeed.repository.FeedRepository;
+import kz.sabyrzhan.rssnewsfeed.service.FeedService;
+import kz.sabyrzhan.rssnewsfeed.servlets.FeedsServlet;
+import kz.sabyrzhan.rssnewsfeed.servlets.Register;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletHandler;
-import org.eclipse.jetty.util.thread.ExecutorThreadPool;
 import org.eclipse.jetty.util.thread.ThreadPool;
 
 import java.io.IOException;
@@ -20,17 +23,32 @@ import java.util.concurrent.TimeUnit;
 
 public class MainApp {
     public static void main(String[] args) throws Exception {
-//        var service = new Service();
-//        service.run();
+        runCustomServer();
+        //runJetty();
+    }
 
-//        ExecutorThreadPool threadPool = new ExecutorThreadPool(4);
+    private static void runCustomServer() throws Exception {
+        var service = new Service();
+        service.run();
+    }
+
+    private static void runJetty() throws Exception {
+//        ExecutorThreadPool threadPool = new ExecutorThreadPool();
+//        threadPool.setUseVirtualThreads(true);
+
+        var feedRepository = new FeedRepository();
+        var feedService = new FeedService(feedRepository);
+        Register.register(feedService);
+
+        Register.register(new FeedsServlet());
+
         ThreadPool threadPool = new VirtualThreadPool();
         Server server = new Server(threadPool);
         ServerConnector connector = new ServerConnector(server);
         connector.setPort(8080);
         server.setConnectors(new Connector[] {connector});
         ServletHandler servletHandler = new ServletHandler();
-        servletHandler.addServletWithMapping(HelloServlet.class, "/hello");
+        servletHandler.addServletWithMapping(FeedsServlet.class, "/api/feeds");
         server.setHandler(servletHandler);
         server.start();
         server.join();
@@ -55,8 +73,7 @@ public class MainApp {
 
         @Override
         public void join() throws InterruptedException {
-            virtualExecutorService.shutdown();
-            virtualExecutorService.awaitTermination(3, TimeUnit.SECONDS);
+            virtualExecutorService.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
         }
 
         @Override
