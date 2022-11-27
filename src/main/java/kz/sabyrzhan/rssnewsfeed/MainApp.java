@@ -1,14 +1,18 @@
 package kz.sabyrzhan.rssnewsfeed;
 
 import com.google.gson.Gson;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import kz.sabyrzhan.rssnewsfeed.facade.FeedsFacade;
-import kz.sabyrzhan.rssnewsfeed.model.Feed;
+import kz.sabyrzhan.rssnewsfeed.facade.UserFacade;
 import kz.sabyrzhan.rssnewsfeed.repository.FeedRepository;
+import kz.sabyrzhan.rssnewsfeed.repository.UsersRepository;
 import kz.sabyrzhan.rssnewsfeed.service.FeedService;
+import kz.sabyrzhan.rssnewsfeed.service.UsersService;
 import kz.sabyrzhan.rssnewsfeed.servlets.FeedsServlet;
 import kz.sabyrzhan.rssnewsfeed.servlets.Register;
 import org.eclipse.jetty.server.Connector;
@@ -16,12 +20,20 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.util.thread.ThreadPool;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.core.env.PropertyResolver;
+import org.springframework.core.env.StandardEnvironment;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import static kz.sabyrzhan.rssnewsfeed.servlets.handlers.Response.EMPTY_RESPONSE;
 
 public class MainApp {
     public static void main(String[] args) throws Exception {
@@ -30,11 +42,44 @@ public class MainApp {
     }
 
     private static void runCustomServer() throws Exception {
+        var properties = new Properties();
+        try (var inputStream = MainApp.class.getClassLoader().getResourceAsStream("application.properties")) {
+            properties.load(inputStream);
+        }
+
+        for(String envName: System.getenv().keySet()) {
+            var value = System.getenv().get(envName);
+            for(String propKey: properties.stringPropertyNames()) {
+                var propValue = properties.getProperty(propKey);
+                if (propValue.contains(envName)) {
+                    properties.setProperty(propKey, value);
+                }
+            }
+        }
+
+        var hikariCp = new HikariConfig();
+        hikariCp.setUsername(properties.getProperty("username"));
+        hikariCp.setJdbcUrl(properties.getProperty("url"));
+        hikariCp.setPassword(properties.getProperty("password"));
+        var dataSource = new HikariDataSource(hikariCp);
+        var jdbcTemplate = new JdbcTemplate(dataSource);
+
         var feedRepository = new FeedRepository();
+        var userRepository = new UsersRepository(jdbcTemplate);
+
         var feedService = new FeedService(feedRepository);
+        var userService = new UsersService(userRepository);
+
         var feedFacade = new FeedsFacade(feedService);
+        var usersFacade = new UserFacade(userService);
 
         Register.registerGet("/api/feeds", request -> feedFacade.getFeeds(request));
+        Register.registerGet("/api/users/user_by_username", request -> usersFacade.findByUsername(request));
+        Register.registerPost("/api/users", request -> {
+            usersFacade.save(request);
+            return EMPTY_RESPONSE;
+        });
+
         var service = new Service();
         service.run();
     }

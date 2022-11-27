@@ -1,6 +1,6 @@
 package kz.sabyrzhan.rssnewsfeed.repository;
 
-import kz.sabyrzhan.rssnewsfeed.model.Feed;
+import kz.sabyrzhan.rssnewsfeed.model.Models.Feed;
 
 import java.util.ArrayList;
 import java.util.List;

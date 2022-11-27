@@ -12,6 +12,8 @@ import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 
 public class Response {
+    public static final int EMPTY_RESPONSE = 0;
+
     public static RawHttpResponse buildResponse(int status, Object responseObject) {
         StatusLine statusLine = switch (status) {
             case 200 -> new StatusLine(HttpVersion.HTTP_1_1, 200, "OK");

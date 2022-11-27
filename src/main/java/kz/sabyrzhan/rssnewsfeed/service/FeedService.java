@@ -1,6 +1,6 @@
 package kz.sabyrzhan.rssnewsfeed.service;
 
-import kz.sabyrzhan.rssnewsfeed.model.Feed;
+import kz.sabyrzhan.rssnewsfeed.model.Models.Feed;
 import kz.sabyrzhan.rssnewsfeed.repository.FeedRepository;
 import lombok.RequiredArgsConstructor;
 

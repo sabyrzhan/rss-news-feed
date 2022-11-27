@@ -1,5 +1,6 @@
 package kz.sabyrzhan.rssnewsfeed;
 
+import kz.sabyrzhan.rssnewsfeed.exception.ApiException;
 import kz.sabyrzhan.rssnewsfeed.servlets.Register;
 import kz.sabyrzhan.rssnewsfeed.servlets.handlers.Request;
 import kz.sabyrzhan.rssnewsfeed.servlets.handlers.Response;
@@ -13,6 +14,8 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.Optional;
 import java.util.concurrent.Executors;
+
+import static kz.sabyrzhan.rssnewsfeed.servlets.handlers.Response.EMPTY_RESPONSE;
 
 public class Service {
     public void run() throws Exception {
@@ -87,9 +90,11 @@ public class Service {
 
                         try {
                             if (response == null) {
+                                record Error(String error) {};
+                                record Success(String message) {};
+
                                 var method = Register.HttpMethod.fromString(request.getMethod());
                                 if (method == null) {
-                                    record Error(String error) {};
                                     var error = new Error("Method not supported");
                                     response = Response.buildResponse(405, error);
                                 } else {
@@ -97,7 +102,17 @@ public class Service {
                                     if (handler == null) {
                                         response = Response.buildResponse(404, "Not found");
                                     } else {
-                                        response = Response.buildResponse(200, handler.handle(new Request()));
+                                        try {
+                                            var requestWrapper = new Request(request);
+                                            var result = handler.handle(requestWrapper);
+                                            if (result == (Object) EMPTY_RESPONSE) {
+                                                response = Response.buildResponse(200, new Success("success"));
+                                            } else {
+                                                response = Response.buildResponse(200, result);
+                                            }
+                                        } catch (ApiException e) {
+                                            response = Response.buildResponse(500, new Error(e.getMessage()));
+                                        }
                                     }
                                 }
                             }
