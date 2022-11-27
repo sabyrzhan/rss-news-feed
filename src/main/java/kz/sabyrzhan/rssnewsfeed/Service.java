@@ -1,237 +1,148 @@
 package kz.sabyrzhan.rssnewsfeed;
 
-import com.sun.net.httpserver.HttpServer;
-import org.apache.commons.io.IOUtils;
-import rawhttp.core.RawHttp;
-import rawhttp.core.RawHttpRequest;
+import kz.sabyrzhan.rssnewsfeed.servlets.Register;
+import kz.sabyrzhan.rssnewsfeed.servlets.handlers.Request;
+import kz.sabyrzhan.rssnewsfeed.servlets.handlers.Response;
+import rawhttp.core.*;
+import rawhttp.core.errors.InvalidHttpRequest;
 
-import java.io.*;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.nio.charset.StandardCharsets;
-import java.util.Scanner;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 
 public class Service {
-    private RawHttp rawHttp = new RawHttp();
-
-    static class ConnectionService implements Runnable {
-
-        Socket socket;
-        ServerSocket serverSocket;
-
-        ConnectionService(ServerSocket serverSocket,Socket server) {
-            this.serverSocket = serverSocket;
-            this.socket = server;
-        }
-
-
-        @Override
-        public void run() {
-            try {
-                var rawHttp = new RawHttp();
-                int cr_count = 0;
-                var text = "sample";
-                byte[] tb = text.getBytes(StandardCharsets.UTF_8);
-                while(true) {
-                    int i=0;
-                    int r = socket.getInputStream().read();
-                    if(r == -1) break;
-
-                    char[] buffer = new char[256];
-
-                    while( r != -1 ){
-                        char c = (char)r;
-                        if( c == '\n' ){
-                            cr_count++;
-                        } else if( c != '\r' ){
-                            cr_count = 0;
-                        }
-                        buffer[i++] = c;
-                        if(cr_count == 2) break;
-                        r = socket.getInputStream().read();
-                    }
-                    System.out.println("request: " + new String(buffer) + " and cr_count: " + cr_count);
-                    var response = "HTTP/1.1 200 OK\r\n" +
-                            "Content-Type: text/plain\r\n" +
-                            "Content-Length: " + tb.length + "\r\n\r\n";
-                    socket.getOutputStream().write(response.getBytes(StandardCharsets.UTF_8));
-                    socket.getOutputStream().write(tb);
-                    socket.getOutputStream().flush();
-                }
-            } catch (Exception e) {
-                System.out.println("Executor error:" + e.toString());
-                e.printStackTrace();
-            } finally {
-                try {
-                    System.out.println("Closing server");
-                    socket.close();
-                } catch (Exception e) {
-                    System.out.println("Executor error2: ");
-                    e.printStackTrace();
-                }
-            }
-        }
-
-    }
-
     public void run() throws Exception {
         var serverSocket = new ServerSocket(8080);
-//        serverSocket.setSoTimeout(0);
-//        serverSocket.setReuseAddress(false);
-//        serverSocket.setSoTimeout(10000);
 
         var executors = Executors.newFixedThreadPool(4);
+        var http = new RawHttp();
 
-
-        if (true) {
-            while(true) {
-                Socket server = serverSocket.accept();
-
-                executors.submit(new ConnectionService(serverSocket, server));
-                if (true) {
-                    continue;
-                }
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                serverSocket.close();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        }
-
-
-        // Run server socket handler in separate thread so accept doesn't block stop
-        Thread serverSocketHandler = new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                int clientNumber = 1;
-                while(true) {
-                    try {
-                        final Socket clientSocket = serverSocket.accept();
-                        executors.execute(() -> {
-                            try {
-                                System.out.println("Getting empty request");
-//                                var header = "HTTP/1.1 200 OK\r\n" +
-//                                        "Content-Type: text/plain\r\n\r\n";
-//                                var body = "sample";
-//                                var pw = new PrintWriter(new BufferedOutputStream(clientSocket.getOutputStream()));
-//                                pw.write(header);
-//                                pw.write(body);
-//                                pw.flush();
-//                                pw.close();
-                                clientSocket.getInputStream().close();
-                                while(!clientSocket.isOutputShutdown() || !clientSocket.isInputShutdown()) {
-                                    System.out.println("Not shutdown");
-                                }
-
-                                clientSocket.close();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        });
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
-                }
-            }
-        });
-
-        serverSocketHandler.start();
-
-        if (true) {
-            return;
-        }
-
+        }));
 
         while(true) {
-            try {
-                var server = serverSocket.accept();
+            var client = serverSocket.accept();
+            executors.submit(() -> {
+                RawHttpRequest request;
+                boolean serverWillCloseConnection = false;
 
-                if (true) {
-                    var text = "sample";
-                    System.out.println("Getting empty request");
-                    var response = "HTTP/1.1 200 OK\r\n" +
-                            "Content-Type: text/plain\r\n\r\n"
-//                            "Content-Length: " + text.length() + "\r\n\r\n"
-                            + text;
-                    var pw = new PrintWriter(server.getOutputStream());
-                    pw.write(response);
-                    pw.close();
-                    server.close();
-                    continue;
-                }
-
-                executors.submit(() -> {
+                while (!serverWillCloseConnection) {
                     try {
-                        System.out.println("Waiting for client on port " +
-                                serverSocket.getLocalPort() + "...");
+                        if (serverSocket.isClosed()) {
+                            client.close();
+                            break;
+                        }
+                        request = http.parseRequest(
+                                client.getInputStream(),
+                                ((InetSocketAddress) client.getRemoteSocketAddress()).getAddress());
+                        HttpVersion httpVersion = request.getStartLine().getHttpVersion();
+                        Optional<String> connectionOption = request.getHeaders().getFirst("Connection");
 
-                        if (true) {
-                            var text = "sample";
-                            System.out.println("Getting empty request");
-                            var response = "HTTP/1.1 200 OK\r\n" +
-                                    "Content-Type: text/plain\r\n" +
-                                    "Content-Length: " + text.length() + "\r\n\r\n"
-                                    + text;
-                            var pw = new PrintWriter(server.getOutputStream());
-                            pw.write(response);
-                            pw.close();
-                            server.close();
-                            return;
+                        // If the "close" connection option is present, the connection will
+                        // not persist after the current response
+                        serverWillCloseConnection = connectionOption
+                                .map("close"::equalsIgnoreCase)
+                                .orElse(false);
+
+                        RawHttpResponse<?> response = null;
+                        boolean expects100 = request.expectContinue();
+
+                        if (expects100 && !request.getStartLine().getHttpVersion().isOlderThan(HttpVersion.HTTP_1_1)) {
+                            RawHttpResponse<Void> interimResponse = new EagerHttpResponse<>(null, null,
+                                    new StatusLine(HttpVersion.HTTP_1_1, 100, "Continue"), RawHttpHeaders.empty(), null);
+                            if (interimResponse.getStatusCode() == 100) {
+                                // tell the client that we shall continue
+                                interimResponse.writeTo(client.getOutputStream());
+                            } else {
+                                // if we don't accept the request body, we must close the connection
+                                serverWillCloseConnection = true;
+                                response = interimResponse;
+                            }
                         }
 
-
-                        var request = readRequestData(server.getInputStream());
-                        System.out.println("Data is: " + request);
-                        if (request == null) {
-                            System.out.println("Getting empty request");
-                            var response = "HTTP/1.1 200 OK\r\n" +
-                                    "Content-Type: text/plain\r\n" +
-                                    "Content-Length: 0\r\n";
-                            rawHttp.parseResponse(response).writeTo(server.getOutputStream());
-                        } else {
-                            System.out.println("Getting normal request");
-                            var response = "HTTP/1.1 200 OK\r\n" +
-                                    "Content-Type: text/plain\r\n" +
-                                    "Content-Length: 9\r\n" +
-                                    "\r\n" +
-                                    "something";
-                            rawHttp.parseResponse(response).writeTo(server.getOutputStream());
+                        if (!serverWillCloseConnection) {
+                            // https://tools.ietf.org/html/rfc7230#section-6.3
+                            // If the received protocol is HTTP/1.1 (or later)
+                            // OR
+                            // If the received protocol is HTTP/1.0, the "keep-alive" connection
+                            // option is present
+                            // THEN the connection will persist
+                            // OTHERWISE close the connection
+                            boolean serverShouldPersistConnection =
+                                    !httpVersion.isOlderThan(HttpVersion.HTTP_1_1)
+                                            || (httpVersion == HttpVersion.HTTP_1_0 && connectionOption
+                                            .map("keep-alive"::equalsIgnoreCase)
+                                            .orElse(false));
+                            serverWillCloseConnection = !serverShouldPersistConnection;
                         }
-                    } catch (Exception e) {
-                        System.out.println("Executor error:" + e.toString());
-                        e.printStackTrace();
-                    } finally {
+
                         try {
-                            System.out.println("Closing server");
-                            server.close();
-                        } catch (Exception e) {
-                            System.out.println("Executor error2: ");
-                            e.printStackTrace();
+                            if (response == null) {
+                                var method = Register.HttpMethod.fromString(request.getMethod());
+                                if (method == null) {
+                                    record Error(String error) {};
+                                    var error = new Error("Method not supported");
+                                    response = Response.buildResponse(405, error);
+                                } else {
+                                    var handler = Register.getHandler(method, request.getUri().getPath());
+                                    if (handler == null) {
+                                        response = Response.buildResponse(404, "Not found");
+                                    } else {
+                                        response = Response.buildResponse(200, handler.handle(new Request()));
+                                    }
+                                }
+                            }
+                            serverWillCloseConnection |= RawHttpResponse.shouldCloseConnectionAfter(response);
+                            response.writeTo(client.getOutputStream());
+                        } finally {
+                            closeBodyOf(response);
+                        }
+                    } catch (SocketTimeoutException e) {
+                        serverWillCloseConnection = true;
+                    } catch (Exception e) {
+                        if (!(e instanceof SocketException)) {
+                            // only print stack trace if this is not due to a client closing the connection
+                            boolean clientClosedConnection = e instanceof InvalidHttpRequest &&
+                                    ((InvalidHttpRequest) e).getLineNumber() == 0;
+
+                            if (!clientClosedConnection) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        serverWillCloseConnection = true; // cannot keep listening anymore
+                    } finally {
+                        if (serverWillCloseConnection) {
+                            try {
+                                client.close();
+                            } catch (IOException e) {
+                                // not a problem
+                            }
                         }
                     }
-                });
-            } catch (SocketTimeoutException s) {
-                System.out.println("Socket timed out!");
-                break;
-            } catch (IOException e) {
-                System.out.println("Error");
-                e.printStackTrace();
-                break;
-            }
-
+                }
+            });
         }
-
-        serverSocket.close();
     }
 
-    private RawHttpRequest readRequestData(InputStream socketInputStream) {
-        RawHttpRequest request = null;
-        try {
-            request = rawHttp.parseRequest(socketInputStream);
-        } catch (Exception e) {
-            e.printStackTrace();
+    private static void closeBodyOf(RawHttpResponse<?> response) {
+        if (response != null) {
+            response.getBody().ifPresent(b -> {
+                try {
+                    b.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
         }
-
-        return request;
     }
 }

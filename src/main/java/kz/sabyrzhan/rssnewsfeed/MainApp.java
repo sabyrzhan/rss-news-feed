@@ -5,6 +5,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import kz.sabyrzhan.rssnewsfeed.facade.FeedsFacade;
+import kz.sabyrzhan.rssnewsfeed.model.Feed;
 import kz.sabyrzhan.rssnewsfeed.repository.FeedRepository;
 import kz.sabyrzhan.rssnewsfeed.service.FeedService;
 import kz.sabyrzhan.rssnewsfeed.servlets.FeedsServlet;
@@ -24,10 +26,15 @@ import java.util.concurrent.TimeUnit;
 public class MainApp {
     public static void main(String[] args) throws Exception {
         runCustomServer();
-        //runJetty();
+//        runJetty();
     }
 
     private static void runCustomServer() throws Exception {
+        var feedRepository = new FeedRepository();
+        var feedService = new FeedService(feedRepository);
+        var feedFacade = new FeedsFacade(feedService);
+
+        Register.registerGet("/api/feeds", request -> feedFacade.getFeeds(request));
         var service = new Service();
         service.run();
     }
@@ -38,9 +45,9 @@ public class MainApp {
 
         var feedRepository = new FeedRepository();
         var feedService = new FeedService(feedRepository);
-        Register.register(feedService);
-
-        Register.register(new FeedsServlet());
+//        Register.register(feedService);
+//
+//        Register.register(new FeedsServlet());
 
         ThreadPool threadPool = new VirtualThreadPool();
         Server server = new Server(threadPool);

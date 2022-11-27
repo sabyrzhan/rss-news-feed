@@ -1,18 +1,63 @@
 package kz.sabyrzhan.rssnewsfeed.servlets;
 
-import jakarta.servlet.http.HttpServlet;
+import kz.sabyrzhan.rssnewsfeed.servlets.handlers.Handler;
+import org.springframework.web.util.UriTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class Register {
-    private static Map<Class<? extends Object>, Object> singletons = new HashMap<>();
+    public enum HttpMethod {
+        GET, POST, PUT, DELETE;
 
-    public static void register(Object item) {
-        singletons.put(item.getClass(), item);
+        public static HttpMethod fromString(String string) {
+            string = string.toUpperCase();
+            for(HttpMethod method: values()) {
+                if (method.toString().equals(string)) {
+                    return method;
+                }
+            }
+
+            return null;
+        }
+    }
+
+    private record MappingKey(HttpMethod method, String url) {};
+
+    private static Map<MappingKey, Handler> singletons = new HashMap<>();
+
+    public static void registerGet(String context, Handler handler) {
+        registerUrl(HttpMethod.GET, context, handler);
+    }
+
+    public static void registerPost(String context, Handler handler) {
+        registerUrl(HttpMethod.POST, context, handler);
+    }
+
+    public static void registerPut(String context, Handler handler) {
+        registerUrl(HttpMethod.PUT, context, handler);
+    }
+
+    public static void registerDelete(String context, Handler handler) {
+        registerUrl(HttpMethod.DELETE, context, handler);
     }
 
     public static <T> T getObject(Class<T> clazz) {
         return (T) singletons.get(clazz);
+    }
+
+    private static void registerUrl(HttpMethod method, String context, Handler handler) {
+        singletons.put(new MappingKey(method, context), handler);
+    }
+
+    public static Handler getHandler(HttpMethod method, String context) {
+        for (MappingKey mappingKey : singletons.keySet()) {
+            var urlTemplate = new UriTemplate(mappingKey.url);
+            if (mappingKey.method == method && urlTemplate.matches(context)) {
+                return singletons.get(mappingKey);
+            }
+        }
+
+        return null;
     }
 }
