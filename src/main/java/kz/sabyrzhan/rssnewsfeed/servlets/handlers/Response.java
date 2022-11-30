@@ -1,6 +1,7 @@
 package kz.sabyrzhan.rssnewsfeed.servlets.handlers;
 
 import com.google.gson.Gson;
+import org.springframework.http.HttpStatus;
 import rawhttp.core.HttpVersion;
 import rawhttp.core.RawHttpHeaders;
 import rawhttp.core.RawHttpResponse;
@@ -15,10 +16,8 @@ public class Response {
     public static final int EMPTY_RESPONSE = 0;
 
     public static RawHttpResponse buildResponse(int status, Object responseObject) {
-        StatusLine statusLine = switch (status) {
-            case 200 -> new StatusLine(HttpVersion.HTTP_1_1, 200, "OK");
-            default -> new StatusLine(HttpVersion.HTTP_1_1, 404, "Not Found");
-        };
+        var statusEnum = HttpStatus.valueOf(status);
+        StatusLine statusLine = new StatusLine(HttpVersion.HTTP_1_1, statusEnum.value(), statusEnum.getReasonPhrase());
 
         var gson = new Gson();
         var responseString = gson.toJson(responseObject);

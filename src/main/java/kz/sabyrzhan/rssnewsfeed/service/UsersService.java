@@ -1,7 +1,7 @@
 package kz.sabyrzhan.rssnewsfeed.service;
 
+import kz.sabyrzhan.rssnewsfeed.exception.UserAlreadyExistsException;
 import kz.sabyrzhan.rssnewsfeed.exception.UserNotFoundException;
-import kz.sabyrzhan.rssnewsfeed.model.Models;
 import kz.sabyrzhan.rssnewsfeed.model.Models.User;
 import kz.sabyrzhan.rssnewsfeed.repository.UsersRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +20,10 @@ public class UsersService {
     }
 
     public void save(User user) {
+        var existingUser = usersRepository.findUserByUsername(user.username());
+        if (existingUser != null) {
+            throw new UserAlreadyExistsException();
+        }
         usersRepository.save(user);
     }
 }

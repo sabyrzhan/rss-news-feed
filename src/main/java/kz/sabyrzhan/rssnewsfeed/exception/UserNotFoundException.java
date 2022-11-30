@@ -1,7 +1,9 @@
 package kz.sabyrzhan.rssnewsfeed.exception;
 
+import org.springframework.http.HttpStatus;
+
 public class UserNotFoundException extends ApiException {
     public UserNotFoundException() {
-        super("User not found", 404);
+        super("User not found", HttpStatus.NOT_FOUND);
     }
 }

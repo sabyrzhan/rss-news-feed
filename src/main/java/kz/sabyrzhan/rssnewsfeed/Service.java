@@ -4,6 +4,7 @@ import kz.sabyrzhan.rssnewsfeed.exception.ApiException;
 import kz.sabyrzhan.rssnewsfeed.servlets.Register;
 import kz.sabyrzhan.rssnewsfeed.servlets.handlers.Request;
 import kz.sabyrzhan.rssnewsfeed.servlets.handlers.Response;
+import lombok.extern.slf4j.Slf4j;
 import rawhttp.core.*;
 import rawhttp.core.errors.InvalidHttpRequest;
 
@@ -17,6 +18,7 @@ import java.util.concurrent.Executors;
 
 import static kz.sabyrzhan.rssnewsfeed.servlets.handlers.Response.EMPTY_RESPONSE;
 
+@Slf4j
 public class Service {
     public void run() throws Exception {
         var serverSocket = new ServerSocket(8080);
@@ -46,7 +48,8 @@ public class Service {
                         }
                         request = http.parseRequest(
                                 client.getInputStream(),
-                                ((InetSocketAddress) client.getRemoteSocketAddress()).getAddress());
+                                ((InetSocketAddress) client.getRemoteSocketAddress()).getAddress())
+                                .eagerly();
                         HttpVersion httpVersion = request.getStartLine().getHttpVersion();
                         Optional<String> connectionOption = request.getHeaders().getFirst("Connection");
 
@@ -111,7 +114,12 @@ public class Service {
                                                 response = Response.buildResponse(200, result);
                                             }
                                         } catch (ApiException e) {
-                                            response = Response.buildResponse(500, new Error(e.getMessage()));
+                                            response = Response.buildResponse(e.getStatus().value(), new Error(e.getMessage()));
+                                            log.error("API error", e, e);
+                                            e.printStackTrace();
+                                        } catch (Exception e) {
+                                            response = Response.buildResponse(500, new Error("Server error: " + e.getMessage()));
+                                            log.error("Error", e, e);
                                         }
                                     }
                                 }

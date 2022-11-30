@@ -15,8 +15,7 @@ public class UserFacade {
     }
 
     public void save(Request request) {
-        var username = request.getParam("username");
-        var password = request.getParam("password");
-        usersService.save(new User(username, password));
+        var user = request.mapBody(User.class);
+        usersService.save(user);
     }
 }
