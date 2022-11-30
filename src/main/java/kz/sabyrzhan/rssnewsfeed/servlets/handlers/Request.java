@@ -1,6 +1,7 @@
 package kz.sabyrzhan.rssnewsfeed.servlets.handlers;
 
 import com.google.gson.Gson;
+import kz.sabyrzhan.rssnewsfeed.exception.BadRequestException;
 import lombok.extern.slf4j.Slf4j;
 import rawhttp.core.HttpMetadataParser;
 import rawhttp.core.RawHttpRequest;
@@ -20,8 +21,8 @@ public record Request(RawHttpRequest rawHttpRequest) {
                 var gson = new Gson();
                 return gson.fromJson(bodyReader.asRawString(StandardCharsets.UTF_8), clazz);
             } catch (Exception e) {
-                log.warn("Body parsing error", e, e);
-                return null;
+                log.warn("Body parsing error. Maybe bad request: {}", e.getMessage());
+                throw new BadRequestException();
             }
         }).orElse(null);
     }

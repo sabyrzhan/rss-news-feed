@@ -14,6 +14,11 @@ public class UsersRepository {
     private static final UserRowMapper ROW_MAPPER = new UserRowMapper();
     private final JdbcTemplate jdbcTemplate;
 
+    public User findById(int id) {
+        var query = "select * from users where id = ?";
+        var result = jdbcTemplate.query(query, ROW_MAPPER, id);
+        return result.isEmpty() ? null : result.get(0);
+    }
     public User findUserByUsername(String username) {
         var usersList = jdbcTemplate.query("select * from users where username = ?", ROW_MAPPER, username);
         return usersList.isEmpty() ? null : usersList.get(0);

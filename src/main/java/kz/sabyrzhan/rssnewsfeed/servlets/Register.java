@@ -1,10 +1,13 @@
 package kz.sabyrzhan.rssnewsfeed.servlets;
 
 import kz.sabyrzhan.rssnewsfeed.servlets.handlers.Handler;
+import kz.sabyrzhan.rssnewsfeed.servlets.handlers.Runner;
 import org.springframework.web.util.UriTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static kz.sabyrzhan.rssnewsfeed.servlets.handlers.Response.EMPTY_RESPONSE;
 
 public class Register {
     public enum HttpMethod {
@@ -32,6 +35,13 @@ public class Register {
 
     public static void registerPost(String context, Handler handler) {
         registerUrl(HttpMethod.POST, context, handler);
+    }
+
+    public static void registerPostRunner(String context, Runner handler) {
+        registerUrl(HttpMethod.POST, context, request -> {
+            handler.run(request);
+            return EMPTY_RESPONSE;
+        });
     }
 
     public static void registerPut(String context, Handler handler) {

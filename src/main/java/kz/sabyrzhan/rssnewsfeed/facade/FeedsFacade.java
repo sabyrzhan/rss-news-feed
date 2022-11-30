@@ -14,4 +14,9 @@ public class FeedsFacade {
     public List<Feed> getFeeds(Request request) {
         return feedService.getFeeds(request.getPage());
     }
+
+    public void addFeed(Request request) {
+        var feed = request.mapBody(Feed.class);
+        feedService.addFeed(feed);
+    }
 }

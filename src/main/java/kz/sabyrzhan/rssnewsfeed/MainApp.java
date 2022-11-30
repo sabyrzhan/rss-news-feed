@@ -75,18 +75,19 @@ public class MainApp {
         var feedRepository = new FeedRepository(jdbcTemplate);
         var userRepository = new UsersRepository(jdbcTemplate);
 
-        var feedService = new FeedService(feedRepository);
+        var feedService = new FeedService(feedRepository, userRepository);
         var userService = new UsersService(userRepository);
 
         var feedFacade = new FeedsFacade(feedService);
         var usersFacade = new UserFacade(userService);
 
+        // Feeds
         Register.registerGet("/api/feeds", request -> feedFacade.getFeeds(request));
+        Register.registerPostRunner("/api/feeds", request -> feedFacade.addFeed(request));
+
+        // Users
         Register.registerGet("/api/users/user_by_username", request -> usersFacade.findByUsername(request));
-        Register.registerPost("/api/users", request -> {
-            usersFacade.save(request);
-            return EMPTY_RESPONSE;
-        });
+        Register.registerPostRunner("/api/users", request -> usersFacade.save(request));
 
         var service = new Service();
         service.run();
@@ -96,8 +97,8 @@ public class MainApp {
 //        ExecutorThreadPool threadPool = new ExecutorThreadPool();
 //        threadPool.setUseVirtualThreads(true);
 
-        var feedRepository = new FeedRepository(null);
-        var feedService = new FeedService(feedRepository);
+        FeedRepository feedRepository = null; //new FeedRepository(null);
+        FeedService feedService = null; //new FeedService(feedRepository);
 //        Register.register(feedService);
 //
 //        Register.register(new FeedsServlet());
