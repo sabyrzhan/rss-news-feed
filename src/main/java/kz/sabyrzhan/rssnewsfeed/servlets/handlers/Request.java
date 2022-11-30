@@ -10,7 +10,8 @@ import java.nio.charset.StandardCharsets;
 @Slf4j
 public record Request(RawHttpRequest rawHttpRequest) {
     public int getPage() {
-        return 1;
+        var pageString = getParam("page");
+        return pageString == null ? 1 : Integer.parseInt(pageString);
     }
 
     public <T> T mapBody(Class<T> clazz) {
@@ -26,7 +27,12 @@ public record Request(RawHttpRequest rawHttpRequest) {
     }
 
     public String getParam(String param) {
-        var params = new HttpMetadataParser(null).parseQueryString(rawHttpRequest.getUri().getQuery());
-        return params.get(param).stream().findFirst().orElse(null);
+        try {
+            var params = new HttpMetadataParser(null).parseQueryString(rawHttpRequest.getUri().getQuery());
+            return params.get(param).stream().findFirst().orElse(null);
+        } catch (Exception e) {
+            log.warn("No {} param", param, e, e);
+            return null;
+        }
     }
 }

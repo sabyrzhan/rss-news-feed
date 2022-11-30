@@ -20,12 +20,9 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.util.thread.ThreadPool;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.core.env.PropertyResolver;
-import org.springframework.core.env.StandardEnvironment;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Properties;
@@ -37,11 +34,6 @@ import static kz.sabyrzhan.rssnewsfeed.servlets.handlers.Response.EMPTY_RESPONSE
 
 public class MainApp {
     public static void main(String[] args) throws Exception {
-        runCustomServer();
-//        runJetty();
-    }
-
-    private static void runCustomServer() throws Exception {
         var properties = new Properties();
         try (var inputStream = MainApp.class.getClassLoader().getResourceAsStream("application.properties")) {
             properties.load(inputStream);
@@ -62,9 +54,25 @@ public class MainApp {
         hikariCp.setJdbcUrl(properties.getProperty("url"));
         hikariCp.setPassword(properties.getProperty("password"));
         var dataSource = new HikariDataSource(hikariCp);
+
+        if (args.length > 0) {
+            switch (args[0]) {
+                case "--migrate":
+                    DBMigration.migrate(dataSource);
+                    break;
+                default:
+                    System.out.println("Invalid parameter");
+            }
+        } else {
+            runCustomServer(dataSource);
+//        runJetty();
+        }
+    }
+
+    private static void runCustomServer(DataSource dataSource) throws Exception {
         var jdbcTemplate = new JdbcTemplate(dataSource);
 
-        var feedRepository = new FeedRepository();
+        var feedRepository = new FeedRepository(jdbcTemplate);
         var userRepository = new UsersRepository(jdbcTemplate);
 
         var feedService = new FeedService(feedRepository);
@@ -88,7 +96,7 @@ public class MainApp {
 //        ExecutorThreadPool threadPool = new ExecutorThreadPool();
 //        threadPool.setUseVirtualThreads(true);
 
-        var feedRepository = new FeedRepository();
+        var feedRepository = new FeedRepository(null);
         var feedService = new FeedService(feedRepository);
 //        Register.register(feedService);
 //
