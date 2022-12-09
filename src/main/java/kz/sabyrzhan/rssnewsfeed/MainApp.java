@@ -45,7 +45,7 @@ public class MainApp {
         runApp(args, null);
     }
 
-    protected static void runApp(String[] args, Properties properties) throws Exception {
+    public static void runApp(String[] args, Properties properties) throws Exception {
         if (properties == null) {
             properties = new Properties();
             try (var inputStream = MainApp.class.getClassLoader().getResourceAsStream("application.properties")) {

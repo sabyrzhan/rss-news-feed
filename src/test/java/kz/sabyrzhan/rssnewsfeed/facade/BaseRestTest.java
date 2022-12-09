@@ -1,13 +1,10 @@
-package kz.sabyrzhan.rssnewsfeed;
+package kz.sabyrzhan.rssnewsfeed.facade;
 
 import com.google.gson.Gson;
-import kz.sabyrzhan.rssnewsfeed.model.Models;
-import kz.sabyrzhan.rssnewsfeed.servlets.handlers.Response.ErrorResponse;
+import kz.sabyrzhan.rssnewsfeed.MainApp;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -23,17 +20,14 @@ import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 @Testcontainers
 @Slf4j
-class MainAppRestTest {
+public class BaseRestTest {
     @Container
     static PostgreSQLContainer pgContainer = new PostgreSQLContainer("postgres")
-                .withDatabaseName("test")
-                .withUsername("test")
-                .withPassword("test");
+            .withDatabaseName("test")
+            .withUsername("test")
+            .withPassword("test");
 
     static HttpClient client = HttpClient.newHttpClient();
 
@@ -76,55 +70,7 @@ class MainAppRestTest {
         System.out.println("Shutting down complete");
     }
 
-    @Test
-    void testCreateUser_success() {
-        var username = RandomStringUtils.randomAlphabetic(5);
-        var password = RandomStringUtils.randomAlphanumeric(10);
-        var newUser = new Models.User(username, password);
-
-        var result = makePostRequest("http://localhost:8080/api/users", newUser, Models.User.class);
-
-        assertTrue(result.id() > 0);
-        var existingUserResponse = makeGetRequest("http://localhost:8080/api/users/" + result.id(), Models.User.class);
-        assertEquals(HttpStatus.OK, existingUserResponse.getValue());
-        var existingUser = existingUserResponse.getKey();
-        assertEquals(result.id(), existingUser.id());
-        assertEquals(username, result.username());
-        assertEquals(password, result.password());
-    }
-
-    @Test
-    void testGetByUsername_success() {
-        var username = RandomStringUtils.randomAlphabetic(5);
-        var password = RandomStringUtils.randomAlphanumeric(10);
-        var newUser = new Models.User(username, password);
-
-        var result = makePostRequest("http://localhost:8080/api/users", newUser, Models.User.class);
-
-        assertTrue(result.id() > 0);
-        var existingUserResponse = makeGetRequest("http://localhost:8080/api/users/user_by_username?username=" + result.username(), Models.User.class);
-        assertEquals(HttpStatus.OK, existingUserResponse.getValue());
-        var existingUser = existingUserResponse.getKey();
-        assertEquals(result.id(), existingUser.id());
-        assertEquals(username, result.username());
-        assertEquals(password, result.password());
-    }
-
-    @Test
-    void testGetByUsername_userNotFound() {
-        var error = makeGetRequest("http://localhost:8080/api/users/user_by_username?username=blablabla", ErrorResponse.class);
-        assertEquals("User not found", error.getKey().error());
-        assertEquals(HttpStatus.NOT_FOUND, error.getValue());
-    }
-
-    @Test
-    void testGetById_userNotFound() {
-        var error = makeGetRequest("http://localhost:8080/api/users/100", ErrorResponse.class);
-        assertEquals("User not found", error.getKey().error());
-        assertEquals(HttpStatus.NOT_FOUND, error.getValue());
-    }
-
-    private <T> Pair<T, HttpStatus> makeGetRequest(String url, Class<T> clazz) {
+    protected  <T> Pair<T, HttpStatus> makeGetRequest(String url, Class<T> clazz) {
         try {
             var request = HttpRequest.newBuilder()
                     .uri(new URI(url))
@@ -146,7 +92,7 @@ class MainAppRestTest {
         }
     }
 
-    private <T> T makePostRequest(String url, Object params, Class<T> clazz) {
+    protected  <T> T makePostRequest(String url, Object params, Class<T> clazz) {
         try {
             var gson = new Gson();
             String paramsString = gson.toJson(params);
