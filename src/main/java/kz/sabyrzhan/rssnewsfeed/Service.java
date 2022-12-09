@@ -4,6 +4,8 @@ import kz.sabyrzhan.rssnewsfeed.exception.ApiException;
 import kz.sabyrzhan.rssnewsfeed.servlets.Register;
 import kz.sabyrzhan.rssnewsfeed.servlets.handlers.Request;
 import kz.sabyrzhan.rssnewsfeed.servlets.handlers.Response;
+import kz.sabyrzhan.rssnewsfeed.servlets.handlers.Response.ErrorResponse;
+import kz.sabyrzhan.rssnewsfeed.servlets.handlers.Response.SuccessResponse;
 import lombok.extern.slf4j.Slf4j;
 import rawhttp.core.*;
 import rawhttp.core.errors.InvalidHttpRequest;
@@ -93,12 +95,9 @@ public class Service {
 
                         try {
                             if (response == null) {
-                                record Error(String error) {};
-                                record Success(String message) {};
-
                                 var method = Register.HttpMethod.fromString(request.getMethod());
                                 if (method == null) {
-                                    var error = new Error("Method not supported");
+                                    var error = new ErrorResponse("Method not supported");
                                     response = Response.buildResponse(405, error);
                                 } else {
                                     var handler = Register.getHandler(method, request.getUri().getPath());
@@ -110,16 +109,16 @@ public class Service {
                                             var requestWrapper = new Request(request, params);
                                             var result = handler.handle(requestWrapper);
                                             if (result == (Object) EMPTY_RESPONSE) {
-                                                response = Response.buildResponse(200, new Success("success"));
+                                                response = Response.buildResponse(200, new SuccessResponse("success"));
                                             } else {
                                                 response = Response.buildResponse(200, result);
                                             }
                                         } catch (ApiException e) {
-                                            response = Response.buildResponse(e.getStatus().value(), new Error(e.getMessage()));
+                                            response = Response.buildResponse(e.getStatus().value(), new ErrorResponse(e.getMessage()));
                                             log.error("API error", e, e);
                                             e.printStackTrace();
                                         } catch (Exception e) {
-                                            response = Response.buildResponse(500, new Error("Server error: " + e.getMessage()));
+                                            response = Response.buildResponse(500, new ErrorResponse("Server error: " + e.getMessage()));
                                             log.error("Error", e, e);
                                         }
                                     }

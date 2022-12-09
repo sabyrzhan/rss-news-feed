@@ -15,6 +15,9 @@ import java.nio.charset.StandardCharsets;
 public class Response {
     public static final int EMPTY_RESPONSE = 0;
 
+    public record ErrorResponse(String error) {}
+    public record SuccessResponse(String message) {}
+
     public static RawHttpResponse buildResponse(int status, Object responseObject) {
         var statusEnum = HttpStatus.valueOf(status);
         StatusLine statusLine = new StatusLine(HttpVersion.HTTP_1_1, statusEnum.value(), statusEnum.getReasonPhrase());
