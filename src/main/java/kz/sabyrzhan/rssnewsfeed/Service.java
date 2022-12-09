@@ -106,7 +106,8 @@ public class Service {
                                         response = Response.buildResponse(404, "Not found");
                                     } else {
                                         try {
-                                            var requestWrapper = new Request(request);
+                                            var params = Register.getPathParams(method, request.getUri().getPath());
+                                            var requestWrapper = new Request(request, params);
                                             var result = handler.handle(requestWrapper);
                                             if (result == (Object) EMPTY_RESPONSE) {
                                                 response = Response.buildResponse(200, new Success("success"));

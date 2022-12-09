@@ -19,11 +19,20 @@ public class UsersService {
         return user;
     }
 
-    public void save(User user) {
+    public User findById(int id) {
+        var user = usersRepository.findById(id);
+        if (user == null) {
+            throw new UserNotFoundException();
+        }
+
+        return user;
+    }
+
+    public User save(User user) {
         var existingUser = usersRepository.findUserByUsername(user.username());
         if (existingUser != null) {
             throw new UserAlreadyExistsException();
         }
-        usersRepository.save(user);
+        return usersRepository.save(user);
     }
 }

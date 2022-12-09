@@ -7,9 +7,10 @@ import rawhttp.core.HttpMetadataParser;
 import rawhttp.core.RawHttpRequest;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 @Slf4j
-public record Request(RawHttpRequest rawHttpRequest) {
+public record Request(RawHttpRequest rawHttpRequest, Map<String, String> pathParams) {
     public int getPage() {
         var pageString = getParam("page");
         return pageString == null ? 1 : Integer.parseInt(pageString);
@@ -35,5 +36,9 @@ public record Request(RawHttpRequest rawHttpRequest) {
             log.warn("No {} param", param, e, e);
             return null;
         }
+    }
+
+    public String getPathParams(String paramName) {
+        return pathParams.get(paramName);
     }
 }

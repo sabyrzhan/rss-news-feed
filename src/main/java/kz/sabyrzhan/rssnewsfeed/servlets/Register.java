@@ -4,7 +4,7 @@ import kz.sabyrzhan.rssnewsfeed.servlets.handlers.Handler;
 import kz.sabyrzhan.rssnewsfeed.servlets.handlers.Runner;
 import org.springframework.web.util.UriTemplate;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static kz.sabyrzhan.rssnewsfeed.servlets.handlers.Response.EMPTY_RESPONSE;
@@ -27,7 +27,7 @@ public class Register {
 
     private record MappingKey(HttpMethod method, String url) {};
 
-    private static Map<MappingKey, Handler> singletons = new HashMap<>();
+    private static Map<MappingKey, Handler> singletons = new LinkedHashMap<>();
 
     public static void registerGet(String context, Handler handler) {
         registerUrl(HttpMethod.GET, context, handler);
@@ -69,5 +69,17 @@ public class Register {
         }
 
         return null;
+    }
+
+    public static Map<String, String> getPathParams(HttpMethod method, String context) {
+        for (MappingKey mappingKey : singletons.keySet()) {
+            var urlTemplate = new UriTemplate(mappingKey.url);
+            if (mappingKey.method == method && urlTemplate.matches(context)) {
+                var params = urlTemplate.match(context);
+                return params;
+            }
+        }
+
+        return Map.of();
     }
 }

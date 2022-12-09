@@ -24,9 +24,10 @@ public class UsersRepository {
         return usersList.isEmpty() ? null : usersList.get(0);
     }
 
-    public void save(User user) {
+    public User save(User user) {
         var query = "insert into users(username, password) values(?,?)";
         jdbcTemplate.update(query, user.username(), user.password());
+        return findUserByUsername(user.username());
     }
 
     private static class UserRowMapper implements RowMapper<User> {

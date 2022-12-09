@@ -15,11 +15,14 @@ import kz.sabyrzhan.rssnewsfeed.service.FeedService;
 import kz.sabyrzhan.rssnewsfeed.service.UsersService;
 import kz.sabyrzhan.rssnewsfeed.servlets.FeedsServlet;
 import kz.sabyrzhan.rssnewsfeed.servlets.Register;
+import lombok.Data;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.util.thread.ThreadPool;
+import org.kohsuke.args4j.CmdLineParser;
+import org.kohsuke.args4j.Option;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
@@ -33,18 +36,29 @@ import java.util.concurrent.TimeUnit;
 import static kz.sabyrzhan.rssnewsfeed.servlets.handlers.Response.EMPTY_RESPONSE;
 
 public class MainApp {
+    @Data
+    public static class Options {
+        @Option(name = "--migrate") boolean migrate;
+        @Option(name = "--migrationPath") String migrationPath;
+    }
     public static void main(String[] args) throws Exception {
-        var properties = new Properties();
-        try (var inputStream = MainApp.class.getClassLoader().getResourceAsStream("application.properties")) {
-            properties.load(inputStream);
-        }
+        runApp(args, null);
+    }
 
-        for(String envName: System.getenv().keySet()) {
-            var value = System.getenv().get(envName);
-            for(String propKey: properties.stringPropertyNames()) {
-                var propValue = properties.getProperty(propKey);
-                if (propValue.contains(envName)) {
-                    properties.setProperty(propKey, value);
+    protected static void runApp(String[] args, Properties properties) throws Exception {
+        if (properties == null) {
+            properties = new Properties();
+            try (var inputStream = MainApp.class.getClassLoader().getResourceAsStream("application.properties")) {
+                properties.load(inputStream);
+            }
+
+            for (String envName : System.getenv().keySet()) {
+                var value = System.getenv().get(envName);
+                for (String propKey : properties.stringPropertyNames()) {
+                    var propValue = properties.getProperty(propKey);
+                    if (propValue.contains(envName)) {
+                        properties.setProperty(propKey, value);
+                    }
                 }
             }
         }
@@ -56,18 +70,21 @@ public class MainApp {
         var dataSource = new HikariDataSource(hikariCp);
 
         if (args.length > 0) {
-            switch (args[0]) {
-                case "--migrate":
-                    DBMigration.migrate(dataSource);
-                    break;
-                default:
-                    System.out.println("Invalid parameter");
+            var options = new Options();
+            var argParser = new CmdLineParser(options);
+            argParser.parseArgument(args);
+
+            if (options.isMigrate()) {
+                DBMigration.migrate(dataSource, options.getMigrationPath());
+            } else {
+                System.out.println("Invalid parameter");
             }
         } else {
             runCustomServer(dataSource);
 //        runJetty();
         }
     }
+
 
     private static void runCustomServer(DataSource dataSource) throws Exception {
         var jdbcTemplate = new JdbcTemplate(dataSource);
@@ -87,7 +104,8 @@ public class MainApp {
 
         // Users
         Register.registerGet("/api/users/user_by_username", request -> usersFacade.findByUsername(request));
-        Register.registerPostRunner("/api/users", request -> usersFacade.save(request));
+        Register.registerGet("/api/users/{id}", request -> usersFacade.findById(request));
+        Register.registerPost("/api/users", request -> usersFacade.save(request));
 
         var service = new Service();
         service.run();
@@ -107,7 +125,7 @@ public class MainApp {
         Server server = new Server(threadPool);
         ServerConnector connector = new ServerConnector(server);
         connector.setPort(8080);
-        server.setConnectors(new Connector[] {connector});
+        server.setConnectors(new Connector[]{connector});
         ServletHandler servletHandler = new ServletHandler();
         servletHandler.addServletWithMapping(FeedsServlet.class, "/api/feeds");
         server.setHandler(servletHandler);
@@ -128,6 +146,7 @@ public class MainApp {
 
     public static class VirtualThreadPool implements ThreadPool {
         private ExecutorService virtualExecutorService;
+
         public VirtualThreadPool() {
             virtualExecutorService = Executors.newVirtualThreadPerTaskExecutor();
         }

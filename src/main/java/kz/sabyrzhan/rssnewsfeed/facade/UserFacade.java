@@ -14,8 +14,13 @@ public class UserFacade {
         return usersService.findByUsername(username);
     }
 
-    public void save(Request request) {
+    public User findById(Request request) {
+        var id = Integer.parseInt(request.getPathParams("id"));
+        return usersService.findById(id);
+    }
+
+    public User save(Request request) {
         var user = request.mapBody(User.class);
-        usersService.save(user);
+        return usersService.save(user);
     }
 }
