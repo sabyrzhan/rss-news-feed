@@ -2,6 +2,7 @@ package kz.sabyrzhan.rssnewsfeed.model;
 
 import com.google.gson.*;
 import com.google.gson.annotations.JsonAdapter;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Type;
@@ -11,17 +12,48 @@ import java.time.Instant;
 import java.util.TimeZone;
 
 public class Models {
+    public record Id(int id) {}
+
     public record User(int id, String username, String password) {
         public User(String username, String password) {
             this(0, username, password);
         }
     }
 
-    public record Feed(int id, int userId, String title, String url, String text, @JsonAdapter(InstantTypeAdapter.class) Instant createDate) {
-        public Feed {
+    @Data
+    public static class Feed {
+        private int id;
+        private int userId;
+        private String title;
+        private String url;
+        private String text;
+        @JsonAdapter(InstantTypeAdapter.class)
+        Instant createDate;
+
+
+        public Feed() {
+            createDate = Instant.now();
+        }
+
+        public Feed(int id, int userId, String title, String url, String text, Instant createDate) {
+            this.id = id;
+            this.userId = userId;
+            this.title = title;
+            this.url = url;
+            this.text = text;
             if (createDate == null) {
-                createDate = Instant.now();
+                this.createDate = Instant.now();
+            } else {
+                this.createDate = createDate;
             }
+        }
+
+        public Feed(int userId, String title, String url, String text, Instant createDate) {
+            this(0, userId, title, url, text, createDate);
+        }
+
+        public Feed(int userId, String title, String url, String text) {
+            this(0, userId, title, url, text, null);
         }
     }
 

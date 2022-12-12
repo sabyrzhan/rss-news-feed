@@ -95,12 +95,12 @@ public class MainApp {
         var feedService = new FeedService(feedRepository, userRepository);
         var userService = new UsersService(userRepository);
 
-        var feedFacade = new FeedsFacade(feedService);
+        var feedFacade = new FeedsFacade(feedService, userService);
         var usersFacade = new UserFacade(userService);
 
         // Feeds
-        Register.registerGet("/api/feeds", request -> feedFacade.getFeeds(request));
-        Register.registerPostRunner("/api/feeds", request -> feedFacade.addFeed(request));
+        Register.registerGet("/api/users/{userId}/feeds", request -> feedFacade.getFeeds(request));
+        Register.registerPost("/api/users/{userId}/feeds", request -> feedFacade.addFeed(request));
 
         // Users
         Register.registerGet("/api/users/user_by_username", request -> usersFacade.findByUsername(request));

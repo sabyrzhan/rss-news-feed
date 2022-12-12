@@ -17,10 +17,12 @@ class UserFacadeTest extends BaseRestTest {
         var password = RandomStringUtils.randomAlphanumeric(10);
         var newUser = new Models.User(username, password);
 
-        var result = makePostRequest("http://localhost:8080/api/users", newUser, Models.User.class);
+        var requestResult = makePostRequest("/api/users", newUser, Models.User.class);
 
+        assertEquals(HttpStatus.OK, requestResult.getValue());
+        var result = requestResult.getKey();
         assertTrue(result.id() > 0);
-        var existingUserResponse = makeGetRequest("http://localhost:8080/api/users/" + result.id(), Models.User.class);
+        var existingUserResponse = makeGetRequest("/api/users/" + result.id(), Models.User.class);
         assertEquals(HttpStatus.OK, existingUserResponse.getValue());
         var existingUser = existingUserResponse.getKey();
         assertEquals(result.id(), existingUser.id());
@@ -34,10 +36,12 @@ class UserFacadeTest extends BaseRestTest {
         var password = RandomStringUtils.randomAlphanumeric(10);
         var newUser = new Models.User(username, password);
 
-        var result = makePostRequest("http://localhost:8080/api/users", newUser, Models.User.class);
+        var requestResult = makePostRequest("/api/users", newUser, Models.User.class);
 
+        assertEquals(HttpStatus.OK, requestResult.getValue());
+        var result = requestResult.getKey();
         assertTrue(result.id() > 0);
-        var existingUserResponse = makeGetRequest("http://localhost:8080/api/users/user_by_username?username=" + result.username(), Models.User.class);
+        var existingUserResponse = makeGetRequest("/api/users/user_by_username?username=" + result.username(), Models.User.class);
         assertEquals(HttpStatus.OK, existingUserResponse.getValue());
         var existingUser = existingUserResponse.getKey();
         assertEquals(result.id(), existingUser.id());
@@ -47,14 +51,14 @@ class UserFacadeTest extends BaseRestTest {
 
     @Test
     void testGetByUsername_userNotFound() {
-        var error = makeGetRequest("http://localhost:8080/api/users/user_by_username?username=blablabla", ErrorResponse.class);
+        var error = makeGetRequest("/api/users/user_by_username?username=blablabla", ErrorResponse.class);
         assertEquals("User not found", error.getKey().error());
         assertEquals(HttpStatus.NOT_FOUND, error.getValue());
     }
 
     @Test
     void testGetById_userNotFound() {
-        var error = makeGetRequest("http://localhost:8080/api/users/100", ErrorResponse.class);
+        var error = makeGetRequest("/api/users/100", ErrorResponse.class);
         assertEquals("User not found", error.getKey().error());
         assertEquals(HttpStatus.NOT_FOUND, error.getValue());
     }

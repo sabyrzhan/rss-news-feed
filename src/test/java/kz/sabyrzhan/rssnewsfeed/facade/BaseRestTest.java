@@ -1,11 +1,15 @@
 package kz.sabyrzhan.rssnewsfeed.facade;
 
 import com.google.gson.Gson;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import kz.sabyrzhan.rssnewsfeed.MainApp;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.http.HttpStatus;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -23,6 +27,10 @@ import java.util.concurrent.Executors;
 @Testcontainers
 @Slf4j
 public class BaseRestTest {
+    protected static final String API_BASE_URL = "http://localhost:8080";
+
+    protected JdbcTemplate jdbcTemplate;
+
     @Container
     static PostgreSQLContainer pgContainer = new PostgreSQLContainer("postgres")
             .withDatabaseName("test")
@@ -31,10 +39,23 @@ public class BaseRestTest {
 
     static HttpClient client = HttpClient.newHttpClient();
 
-    static ExecutorService executorService = Executors.newFixedThreadPool(1);
+    static ExecutorService executorService;
+
+    @BeforeEach
+    void setUp() throws Exception {
+        var hikariConfig = new HikariConfig();
+        hikariConfig.setJdbcUrl(pgContainer.getJdbcUrl());
+        hikariConfig.setUsername(pgContainer.getUsername());
+        hikariConfig.setPassword(pgContainer.getPassword());
+        hikariConfig.setDriverClassName(pgContainer.getDriverClassName());
+        var dataSource = new HikariDataSource(hikariConfig);
+
+        jdbcTemplate = new JdbcTemplate(dataSource);
+    }
 
     @BeforeAll
-    static void setUp() throws Exception {
+    static void setUpAll() throws Exception {
+        executorService = Executors.newFixedThreadPool(1);
         executorService.submit(() -> {
             try {
                 var port = pgContainer.getMappedPort(5432);
@@ -64,16 +85,17 @@ public class BaseRestTest {
     }
 
     @AfterAll
-    static void tearDown() {
-        System.out.println("Shutting down init");
-        executorService.shutdown();
-        System.out.println("Shutting down complete");
+    static void tearDownAll() throws Exception {
+        System.out.println("Shutting down executor");
+        executorService.shutdownNow();
+        Thread.sleep(2_000);
+        System.out.println("Executor shut down complete");
     }
 
     protected  <T> Pair<T, HttpStatus> makeGetRequest(String url, Class<T> clazz) {
         try {
             var request = HttpRequest.newBuilder()
-                    .uri(new URI(url))
+                    .uri(new URI(API_BASE_URL + url))
                     .GET()
                     .build();
 
@@ -92,13 +114,13 @@ public class BaseRestTest {
         }
     }
 
-    protected  <T> T makePostRequest(String url, Object params, Class<T> clazz) {
+    protected  <T> Pair<T, HttpStatus> makePostRequest(String url, Object params, Class<T> clazz) {
         try {
             var gson = new Gson();
             String paramsString = gson.toJson(params);
 
             var request = HttpRequest.newBuilder()
-                    .uri(new URI(url))
+                    .uri(new URI(API_BASE_URL + url))
                     .headers("Content-Type", "application/json;charset=UTF-8")
                     .POST(HttpRequest.BodyPublishers.ofString(paramsString))
                     .build();
@@ -109,7 +131,8 @@ public class BaseRestTest {
 
             String json = response.body();
 
-            return gson.fromJson(json, clazz);
+            var result = gson.fromJson(json, clazz);
+            return Pair.of(result, HttpStatus.valueOf(response.statusCode()));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

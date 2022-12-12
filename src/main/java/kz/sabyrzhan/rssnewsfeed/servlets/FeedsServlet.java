@@ -13,7 +13,7 @@ public class FeedsServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         var feedService = Register.getObject(FeedService.class);
-        var feeds = feedService.getFeeds(1);
+        var feeds = feedService.getFeeds(1, 1);
         resp.getWriter().print(new Gson().toJson(feeds));
     }
 }
