@@ -12,8 +12,9 @@ import java.io.IOException;
 public class FeedsServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        var feedService = Register.getObject(FeedService.class);
-        var feeds = feedService.getFeeds(1, 1);
+        var userId = Integer.parseInt(req.getParameter("userId"));
+        var feedService = Register.getBean(FeedService.class);
+        var feeds = feedService.getFeeds(userId, 1);
         resp.getWriter().print(new Gson().toJson(feeds));
     }
 }

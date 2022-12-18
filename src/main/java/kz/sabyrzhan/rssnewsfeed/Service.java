@@ -25,7 +25,7 @@ public class Service {
     public void run() throws Exception {
         var serverSocket = new ServerSocket(8080);
 
-        var executors = Executors.newFixedThreadPool(4);
+        var executors = Executors.newVirtualThreadPerTaskExecutor();
         var http = new RawHttp();
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {

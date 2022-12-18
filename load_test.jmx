@@ -68,7 +68,7 @@
           <stringProp name="HTTPSampler.response_timeout"></stringProp>
         </HTTPSamplerProxy>
         <hashTree/>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GetUserById" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GetUserById" enabled="false">
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
             <collectionProp name="Arguments.arguments"/>
           </elementProp>
@@ -87,14 +87,14 @@
           <stringProp name="HTTPSampler.response_timeout"></stringProp>
         </HTTPSamplerProxy>
         <hashTree/>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Register User" enabled="false">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Register User" enabled="true">
           <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
             <collectionProp name="Arguments.arguments">
               <elementProp name="" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
                 <stringProp name="Argument.value">{&#xd;
-	&quot;username&quot;: &quot;sampleuser&quot;,&#xd;
+	&quot;username&quot;: &quot;NewUser&quot;,&#xd;
 	&quot;password&quot;: &quot;some password&quot;&#xd;
 }</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
@@ -199,7 +199,7 @@
           <stringProp name="HTTPSampler.port">8080</stringProp>
           <stringProp name="HTTPSampler.protocol"></stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-          <stringProp name="HTTPSampler.path">/api/feeds?page=1</stringProp>
+          <stringProp name="HTTPSampler.path">/api/feeds?userId=1</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -217,11 +217,11 @@
               <elementProp name="" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
                 <stringProp name="Argument.value">{&#xd;
-	&quot;userId&quot;: 1,&#xd;
-	&quot;title&quot;: &quot;First feed&quot;,&#xd;
-	&quot;url&quot;: &quot;https://localhost&quot;,&#xd;
-	&quot;text&quot;: &quot;First feed text&quot;,&#xd;
-	&quot;createDate&quot;: &quot;2022-12-01 11:00:00Z&quot;&#xd;
+    &quot;userId&quot;: 1,&#xd;
+    &quot;title&quot;: &quot;Channel rescue: Suella Braverman says government must ‘end these crossings’ after four people die in boat capsize – latest updates - The Guardian&quot;,&#xd;
+    &quot;url&quot;: &quot;https://news.google.com/__i/rss/rd/articles/CBMijgFodHRwczovL3d3dy50aGVndWFyZGlhbi5jb20vdWstbmV3cy9saXZlLzIwMjIvZGVjLzE0L2NoYW5uZWwtcmVzY3VlLXBlb3BsZS1mZWFyZWQtZGVhZC1hZnRlci1zbWFsbC1ib2F0LWluY2lkZW50LW9mZi1rZW50LWNvYXN0LWxhdGVzdC11cGRhdGVz0gGOAWh0dHBzOi8vYW1wLnRoZWd1YXJkaWFuLmNvbS91ay1uZXdzL2xpdmUvMjAyMi9kZWMvMTQvY2hhbm5lbC1yZXNjdWUtcGVvcGxlLWZlYXJlZC1kZWFkLWFmdGVyLXNtYWxsLWJvYXQtaW5jaWRlbnQtb2ZmLWtlbnQtY29hc3QtbGF0ZXN0LXVwZGF0ZXM?oc=5&quot;,&#xd;
+    &quot;text&quot;: &quot;&lt;ol&gt;&lt;li&gt;&lt;a href=\&quot;https://news.google.com/__i/rss/rd/articles/CBMijgFodHRwczovL3d3dy50aGVndWFyZGlhbi5jb20vdWstbmV3cy9saXZlLzIwMjIvZGVjLzE0L2NoYW5uZWwtcmVzY3VlLXBlb3BsZS1mZWFyZWQtZGVhZC1hZnRlci1zbWFsbC1ib2F0LWluY2lkZW50LW9mZi1rZW50LWNvYXN0LWxhdGVzdC11cGRhdGVz0gGOAWh0dHBzOi8vYW1wLnRoZWd1YXJkaWFuLmNvbS91ay1uZXdzL2xpdmUvMjAyMi9kZWMvMTQvY2hhbm5lbC1yZXNjdWUtcGVvcGxlLWZlYXJlZC1kZWFkLWFmdGVyLXNtYWxsLWJvYXQtaW5jaWRlbnQtb2ZmLWtlbnQtY29hc3QtbGF0ZXN0LXVwZGF0ZXM?oc=5\&quot; target=\&quot;_blank\&quot;&gt;Channel rescue: Suella Braverman says government must ‘end these crossings’ after four people die in boat capsize – latest updates&lt;/a&gt;&amp;nbsp;&amp;nbsp;&lt;font color=\&quot;#6f6f6f\&quot;&gt;The Guardian&lt;/font&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=\&quot;https://news.google.com/__i/rss/rd/articles/CBMiJmh0dHBzOi8vd3d3LmJiYy5jby51ay9uZXdzL3VrLTYzOTY4OTQx0gEqaHR0cHM6Ly93d3cuYmJjLmNvLnVrL25ld3MvdWstNjM5Njg5NDEuYW1w?oc=5\&quot; target=\&quot;_blank\&quot;&gt;Four people dead after migrant boat capsizes&lt;/a&gt;&amp;nbsp;&amp;nbsp;&lt;font color=\&quot;#6f6f6f\&quot;&gt;BBC&lt;/font&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=\&quot;https://news.google.com/__i/rss/rd/articles/CBMiK2h0dHBzOi8vd3d3LnlvdXR1YmUuY29tL3dhdGNoP3Y9NHNyNmNWTmphUVHSAQA?oc=5\&quot; target=\&quot;_blank\&quot;&gt;At least three dead and 40 rescued after boat capsizes in Channel&lt;/a&gt;&amp;nbsp;&amp;nbsp;&lt;font color=\&quot;#6f6f6f\&quot;&gt;Evening Standard&lt;/font&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=\&quot;https://news.google.com/__i/rss/rd/articles/CBMihQFodHRwczovL25ld3Muc2t5LmNvbS9zdG9yeS90aGV5LXN1cnJvdW5kZWQtb3VyLWJvYXQtc2NyZWFtaW5nLWZvci1oZWxwLWZpc2hpbmctY3Jldy1zYXZlZC0zMS1zdHJhbmRlZC1pbi10aGUtZW5nbGlzaC1jaGFubmVsLTEyNzY3ODc50gGJAWh0dHBzOi8vbmV3cy5za3kuY29tL3N0b3J5L2FtcC90aGV5LXN1cnJvdW5kZWQtb3VyLWJvYXQtc2NyZWFtaW5nLWZvci1oZWxwLWZpc2hpbmctY3Jldy1zYXZlZC0zMS1zdHJhbmRlZC1pbi10aGUtZW5nbGlzaC1jaGFubmVsLTEyNzY3ODc5?oc=5\&quot; target=\&quot;_blank\&quot;&gt;British fisherman tells Sky News how crew saved dozens &apos;screaming for help&apos; from sinking boat&lt;/a&gt;&amp;nbsp;&amp;nbsp;&lt;font color=\&quot;#6f6f6f\&quot;&gt;Sky News&lt;/font&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=\&quot;https://news.google.com/__i/rss/rd/articles/CBMiK2h0dHBzOi8vd3d3LnlvdXR1YmUuY29tL3dhdGNoP3Y9ZmlvUG5CWHBCcEXSAQA?oc=5\&quot; target=\&quot;_blank\&quot;&gt;PMQs: Rishi Sunak expresses &apos;sorrow&apos; over migrant boat incident&lt;/a&gt;&amp;nbsp;&amp;nbsp;&lt;font color=\&quot;#6f6f6f\&quot;&gt;The Independent&lt;/font&gt;&lt;/li&gt;&lt;li&gt;&lt;strong&gt;&lt;a href=\&quot;https://news.google.com/stories/CAAqNggKIjBDQklTSGpvSmMzUnZjbmt0TXpZd1NoRUtEd2k3N1lHcUJoR29zOTdIUGEtNkVDZ0FQAQ?oc=5\&quot; target=\&quot;_blank\&quot;&gt;View Full coverage on Google News&lt;/a&gt;&lt;/strong&gt;&lt;/li&gt;&lt;/ol&gt;&quot;,&#xd;
+    &quot;createDate&quot;: &quot;2022-12-14T14:43:11.000Z&quot;&#xd;
 }</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
@@ -231,7 +231,7 @@
           <stringProp name="HTTPSampler.port"></stringProp>
           <stringProp name="HTTPSampler.protocol"></stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-          <stringProp name="HTTPSampler.path">/api/feeds</stringProp>
+          <stringProp name="HTTPSampler.path">/api/users/1/feeds</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -570,6 +570,218 @@
           </objProp>
           <stringProp name="filename"></stringProp>
           <longProp name="interval_grouping">500</longProp>
+          <boolProp name="graph_aggregated">false</boolProp>
+          <stringProp name="include_sample_labels"></stringProp>
+          <stringProp name="exclude_sample_labels"></stringProp>
+          <stringProp name="start_offset"></stringProp>
+          <stringProp name="end_offset"></stringProp>
+          <boolProp name="include_checkbox_state">false</boolProp>
+          <boolProp name="exclude_checkbox_state">false</boolProp>
+        </kg.apc.jmeter.vizualizers.CorrectedResultCollector>
+        <hashTree/>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="LoadTest_GetRandomUserFeeds" enabled="false">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <intProp name="LoopController.loops">-1</intProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">100</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">60</stringProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+      </ThreadGroup>
+      <hashTree>
+        <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="BeanShell PreProcessor" enabled="true">
+          <stringProp name="filename"></stringProp>
+          <stringProp name="parameters"></stringProp>
+          <boolProp name="resetInterpreter">false</boolProp>
+          <stringProp name="script">import java.util.*;
+
+var random = new Random();
+var nextInt = random.nextInt(1, 11);
+vars.put(&quot;USER_ID&quot;, String.valueOf(nextInt));
+System.out.println(&quot;Random int: &quot; + nextInt);</stringProp>
+        </BeanShellPreProcessor>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Get User Feeds (Jetty)" enabled="false">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain"></stringProp>
+          <stringProp name="HTTPSampler.port"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">/api/feeds?userId=${USER_ID}</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Get User Feeds (Custom)" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain"></stringProp>
+          <stringProp name="HTTPSampler.port"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">/api/users/${USER_ID}/feeds</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="false">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <name>saveConfig</name>
+            <value class="SampleSaveConfiguration">
+              <time>true</time>
+              <latency>true</latency>
+              <timestamp>true</timestamp>
+              <success>true</success>
+              <label>true</label>
+              <code>true</code>
+              <message>true</message>
+              <threadName>true</threadName>
+              <dataType>true</dataType>
+              <encoding>false</encoding>
+              <assertions>true</assertions>
+              <subresults>true</subresults>
+              <responseData>false</responseData>
+              <samplerData>false</samplerData>
+              <xml>false</xml>
+              <fieldNames>true</fieldNames>
+              <responseHeaders>false</responseHeaders>
+              <requestHeaders>false</requestHeaders>
+              <responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave>
+              <bytes>true</bytes>
+              <sentBytes>true</sentBytes>
+              <url>true</url>
+              <threadCounts>true</threadCounts>
+              <idleTime>true</idleTime>
+              <connectTime>true</connectTime>
+            </value>
+          </objProp>
+          <stringProp name="filename"></stringProp>
+        </ResultCollector>
+        <hashTree/>
+        <kg.apc.jmeter.vizualizers.CorrectedResultCollector guiclass="kg.apc.jmeter.vizualizers.ResponseTimesOverTimeGui" testclass="kg.apc.jmeter.vizualizers.CorrectedResultCollector" testname="jp@gc - Response Times Over Time" enabled="true">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <name>saveConfig</name>
+            <value class="SampleSaveConfiguration">
+              <time>true</time>
+              <latency>true</latency>
+              <timestamp>true</timestamp>
+              <success>true</success>
+              <label>true</label>
+              <code>true</code>
+              <message>true</message>
+              <threadName>true</threadName>
+              <dataType>true</dataType>
+              <encoding>false</encoding>
+              <assertions>true</assertions>
+              <subresults>true</subresults>
+              <responseData>false</responseData>
+              <samplerData>false</samplerData>
+              <xml>false</xml>
+              <fieldNames>true</fieldNames>
+              <responseHeaders>false</responseHeaders>
+              <requestHeaders>false</requestHeaders>
+              <responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave>
+              <bytes>true</bytes>
+              <sentBytes>true</sentBytes>
+              <url>true</url>
+              <threadCounts>true</threadCounts>
+              <idleTime>true</idleTime>
+              <connectTime>true</connectTime>
+            </value>
+          </objProp>
+          <stringProp name="filename"></stringProp>
+          <longProp name="interval_grouping">5000</longProp>
+          <boolProp name="graph_aggregated">false</boolProp>
+          <stringProp name="include_sample_labels"></stringProp>
+          <stringProp name="exclude_sample_labels"></stringProp>
+          <stringProp name="start_offset"></stringProp>
+          <stringProp name="end_offset"></stringProp>
+          <boolProp name="include_checkbox_state">false</boolProp>
+          <boolProp name="exclude_checkbox_state">false</boolProp>
+        </kg.apc.jmeter.vizualizers.CorrectedResultCollector>
+        <hashTree/>
+        <kg.apc.jmeter.timers.VariableThroughputTimer guiclass="kg.apc.jmeter.timers.VariableThroughputTimerGui" testclass="kg.apc.jmeter.timers.VariableThroughputTimer" testname="jp@gc - Throughput Shaping Timer" enabled="true">
+          <collectionProp name="load_profile">
+            <collectionProp name="2101628691">
+              <stringProp name="1">1</stringProp>
+              <stringProp name="52469">500</stringProp>
+              <stringProp name="60">60</stringProp>
+            </collectionProp>
+            <collectionProp name="-403362687">
+              <stringProp name="52469">500</stringProp>
+              <stringProp name="52469">500</stringProp>
+              <stringProp name="48873">180</stringProp>
+            </collectionProp>
+            <collectionProp name="32227725">
+              <stringProp name="52469">500</stringProp>
+              <stringProp name="49">1</stringProp>
+              <stringProp name="1722">60</stringProp>
+            </collectionProp>
+          </collectionProp>
+        </kg.apc.jmeter.timers.VariableThroughputTimer>
+        <hashTree/>
+        <kg.apc.jmeter.vizualizers.CorrectedResultCollector guiclass="kg.apc.jmeter.vizualizers.TransactionsPerSecondGui" testclass="kg.apc.jmeter.vizualizers.CorrectedResultCollector" testname="jp@gc - Transactions per Second" enabled="true">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <name>saveConfig</name>
+            <value class="SampleSaveConfiguration">
+              <time>true</time>
+              <latency>true</latency>
+              <timestamp>true</timestamp>
+              <success>true</success>
+              <label>true</label>
+              <code>true</code>
+              <message>true</message>
+              <threadName>true</threadName>
+              <dataType>true</dataType>
+              <encoding>false</encoding>
+              <assertions>true</assertions>
+              <subresults>true</subresults>
+              <responseData>false</responseData>
+              <samplerData>false</samplerData>
+              <xml>false</xml>
+              <fieldNames>true</fieldNames>
+              <responseHeaders>false</responseHeaders>
+              <requestHeaders>false</requestHeaders>
+              <responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave>
+              <bytes>true</bytes>
+              <sentBytes>true</sentBytes>
+              <url>true</url>
+              <threadCounts>true</threadCounts>
+              <idleTime>true</idleTime>
+              <connectTime>true</connectTime>
+            </value>
+          </objProp>
+          <stringProp name="filename"></stringProp>
+          <longProp name="interval_grouping">1000</longProp>
           <boolProp name="graph_aggregated">false</boolProp>
           <stringProp name="include_sample_labels"></stringProp>
           <stringProp name="exclude_sample_labels"></stringProp>

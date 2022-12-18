@@ -1,12 +1,7 @@
 package kz.sabyrzhan.rssnewsfeed;
 
-import com.google.gson.Gson;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import kz.sabyrzhan.rssnewsfeed.facade.FeedsFacade;
 import kz.sabyrzhan.rssnewsfeed.facade.UserFacade;
 import kz.sabyrzhan.rssnewsfeed.repository.FeedRepository;
@@ -26,14 +21,10 @@ import org.kohsuke.args4j.Option;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
-import static kz.sabyrzhan.rssnewsfeed.servlets.handlers.Response.EMPTY_RESPONSE;
 
 public class MainApp {
     @Data
@@ -81,7 +72,7 @@ public class MainApp {
             }
         } else {
             runCustomServer(dataSource);
-//        runJetty();
+//            runJetty(dataSource);
         }
     }
 
@@ -111,15 +102,17 @@ public class MainApp {
         service.run();
     }
 
-    private static void runJetty() throws Exception {
-//        ExecutorThreadPool threadPool = new ExecutorThreadPool();
-//        threadPool.setUseVirtualThreads(true);
+    private static void runJetty(DataSource dataSource) throws Exception {
+        var jdbcTemplate = new JdbcTemplate(dataSource);
 
-        FeedRepository feedRepository = null; //new FeedRepository(null);
-        FeedService feedService = null; //new FeedService(feedRepository);
-//        Register.register(feedService);
-//
-//        Register.register(new FeedsServlet());
+        var feedRepository = new FeedRepository(jdbcTemplate);
+        var userRepository = new UsersRepository(jdbcTemplate);
+
+        var feedService = new FeedService(feedRepository, userRepository);
+        var userService = new UsersService(userRepository);
+
+        Register.registerBean(FeedService.class, feedService);
+        Register.registerBean(UsersService.class, userService);
 
         ThreadPool threadPool = new VirtualThreadPool();
         Server server = new Server(threadPool);
@@ -131,17 +124,6 @@ public class MainApp {
         server.setHandler(servletHandler);
         server.start();
         server.join();
-    }
-
-    public static class HelloServlet extends HttpServlet {
-        @Override
-        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-            resp.setContentType("application/json");
-            resp.setStatus(200);
-            var data = new HashMap<>();
-            data.put("status", "OK");
-            resp.getWriter().println(new Gson().toJson(data));
-        }
     }
 
     public static class VirtualThreadPool implements ThreadPool {

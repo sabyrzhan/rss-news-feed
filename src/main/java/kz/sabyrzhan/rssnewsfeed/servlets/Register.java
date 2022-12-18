@@ -4,6 +4,7 @@ import kz.sabyrzhan.rssnewsfeed.servlets.handlers.Handler;
 import kz.sabyrzhan.rssnewsfeed.servlets.handlers.Runner;
 import org.springframework.web.util.UriTemplate;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -28,6 +29,15 @@ public class Register {
     private record MappingKey(HttpMethod method, String url) {};
 
     private static Map<MappingKey, Handler> singletons = new LinkedHashMap<>();
+    private static Map<Class, Object> beans = new HashMap<>();
+
+    public static void registerBean(Class clazz, Object bean) {
+        beans.put(clazz, bean);
+    }
+
+    public static <T> T getBean(Class<T> clazz) {
+        return (T) beans.get(clazz);
+    }
 
     public static void registerGet(String context, Handler handler) {
         registerUrl(HttpMethod.GET, context, handler);
@@ -50,10 +60,6 @@ public class Register {
 
     public static void registerDelete(String context, Handler handler) {
         registerUrl(HttpMethod.DELETE, context, handler);
-    }
-
-    public static <T> T getObject(Class<T> clazz) {
-        return (T) singletons.get(clazz);
     }
 
     private static void registerUrl(HttpMethod method, String context, Handler handler) {

@@ -15,6 +15,9 @@ public class Models {
     public record Id(int id) {}
 
     public record User(int id, String username, String password) {
+        public User {
+            username = username.toLowerCase();
+        }
         public User(String username, String password) {
             this(0, username, password);
         }
@@ -64,7 +67,7 @@ public class Models {
         public Instant deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
             try {
                 var timeString = jsonElement.getAsString();
-                var sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss'Z'");
+                var sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
                 sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
                 return sdf.parse(timeString).toInstant();
             } catch (Exception e) {
