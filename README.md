@@ -8,4 +8,4 @@ unique. The system allows the user to import RSS file as a batch operation.
 ## Technology stack
 * Java 19 with `Virtual Threads` enabled
 * PostgreSQL
-* Socket API to handle requests (for simplicity)
+* Custom and simple HTTP 1.1 Server based on Socket API to handle requests
